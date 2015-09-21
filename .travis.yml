@@ -1,0 +1,24 @@
+sudo: required
+
+services:
+    - docker
+
+env:
+    CONTAINER='centos:latest'
+    IMG_TARBALL='centos4.tar.xz'
+
+before_install:
+    - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+    - docker pull ${CONTAINER}
+
+script:
+    - docker run --privileged -i -t -v ${PWD}:/srv -e "IMG_TARBALL=${IMG_TARBALL}" ${CONTAINER} /srv/build.sh
+    - |
+      cat <<EOF > Dockerfile
+      FROM scratch
+      MAINTAINER pigfoot <pigfoot@gmail.com>
+      ADD /${IMG_TARBALL} /
+      CMD ["/bin/bash"]
+      EOF
+    - docker build -t pigfoot/centos:4 .
+    - docker push pigfoot/centos:4

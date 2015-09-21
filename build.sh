@@ -8,7 +8,8 @@ exec 0<&-
 
 set -e -u -x
 
-DEST_IMG="/srv/centos49.tar.gz"
+IMG=${IMG_TARBALL:-centos49.tar.gz}
+DEST_IMG="/srv/${IMG}"
 
 rm -f ${DEST_IMG}
 
@@ -90,4 +91,4 @@ rm -f ${instroot}/etc/resolv.conf
 
 ## xz gives the smallest size by far, compared to bzip2 and gzip, by like 50%!
 ## … but somewhere along the line Docker stopped supporting it.
-chroot ${instroot} tar -czf - . > ${DEST_IMG}
+tar -acf ${DEST_IMG} -C ${instroot} .
